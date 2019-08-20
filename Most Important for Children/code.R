@@ -44,9 +44,13 @@ most_important %>%
        subtitle = "%of respondents selecting each attribute as 'the most important for a child to learn\nto prepare him or her for life'") + 
   #manually assign the limits so that we can add another annotation at the bottom
   coord_cartesian(ylim = c(0, .55), xlim = c(1986, 2018), clip = "off") + 
+  annotate("segment", x = 1983, xend = 2020, y = -.1, yend = -.1, color = "gray50", size = 1)+
   #cite the source
+  annotate("text", x = 2020, y = -.15, 
+           label = "Source : 2018 General Social Survey",
+           hjust = 1, color = "grey50", fontface = "bold", size = 3) + 
   annotate("text", x = 1983, y = -.15, 
-           label = "Source : The General Social Survey (GSS); a project of the independent research organization NORC\nat the University of Chicago, with principal funding from the National Science Foundation.",
+           label = "github.com/Jordo82/PictureThis",
            hjust = 0, color = "grey50", fontface = "bold", size = 3)
 
 #output plot as png
