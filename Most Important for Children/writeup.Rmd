@@ -1,0 +1,12 @@
+---
+title: "What's most important for a child to learn?"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+32 year trend in responses to a question of which attribute is the most important for a child to learn.
+
+![no cap](Most_Important.png){width=800px}
