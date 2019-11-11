@@ -5,6 +5,10 @@ library(scales)
 library(grid)
 library(gridExtra)
 
+#grab a custom function for captioning plots
+source("functions/functions.R")
+
+
 #download the GSS dataset into a temporary directory
 td <- tempdir()
 tf <- paste0(tempfile(tmpdir = td), ".zip")
@@ -45,28 +49,6 @@ p <- most_important %>%
        subtitle = "%of respondents selecting each attribute as 'the most important for a child to learn\nto prepare him or her for life'")
 
 
-#function to create custom captions
-caption_plot <- function(plot, left_caption = "", right_caption = ""){
-  grobTree(
-    rectGrob(gp=gpar(fill="grey94", lwd = NA)),
-    arrangeGrob(plot,
-                rectGrob(height = 0, gp=gpar(fill="grey94", lwd = 3, col = "grey80")),
-                textGrob(left_caption, just = "left", x = 0.05, y = .5, gp = gpar(fontface = "bold",
-                                                                                  fontsize = 12,
-                                                                                  col = "grey40",
-                                                                                  fontfamily = "sans")),
-                textGrob(right_caption, just = "right", x = 0.95, y = .5, gp = gpar(fontface = "bold",
-                                                                                    fontsize = 12,
-                                                                                    col = "grey40",
-                                                                                    fontfamily = "sans")),
-                layout_matrix = rbind(c(1, 1),
-                                      c(2, 2),
-                                      c(3, 4)),
-                heights = c(.95, .01, .04)
-    )
-  )
-  
-}
 
 #output plot as png
 ggsave("Most Important for Children/Most_Important.png", 

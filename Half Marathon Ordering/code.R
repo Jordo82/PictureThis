@@ -4,6 +4,9 @@ library(scales)
 library(grid)
 library(gridExtra)
 
+#grab a custom function for captioning plots
+source("functions/functions.R")
+
 
 #read in the race results, taken from http://www.mychiptime.com/searchevent.php?id=11569
 race <- read_csv("Half Marathon Ordering/Race Results.csv", col_types = "dddccdc") %>% 
@@ -49,31 +52,8 @@ p <- race %>%
        y = "Order at the Start") 
 
 
-#function to create custom captions
-caption_plot <- function(plot, left_caption = "", right_caption = ""){
-  grobTree(
-    rectGrob(gp=gpar(fill="grey94", lwd = NA)),
-    arrangeGrob(plot,
-                rectGrob(height = 0, gp=gpar(fill="grey94", lwd = 3, col = "grey80")),
-                textGrob(left_caption, just = "left", x = 0.05, y = .5, gp = gpar(fontface = "bold",
-                                                                                  fontsize = 8,
-                                                                                  col = "grey40",
-                                                                                  fontfamily = "sans")),
-                textGrob(right_caption, just = "right", x = 0.95, y = .5, gp = gpar(fontface = "bold",
-                                                                                    fontsize = 8,
-                                                                                    col = "grey40",
-                                                                                    fontfamily = "sans")),
-                layout_matrix = rbind(c(1, 1),
-                                      c(2, 2),
-                                      c(3, 4)),
-                heights = c(.95, .01, .04)
-    )
-  )
-  
-}
-
-#output plot as png
+#output plot as png, with a custom caption
 ggsave("Half Marathon Ordering/Race_Ordering.png", 
        caption_plot(p, "github.com/jordanRupton/PictureThis", 
-                    "Source: Austin 3M Half Marathon 2019 Results"),
+                    "Source: Austin 3M Half Marathon 2019 Results", fontsize = 8),
        width = 8, height = 4.5, dpi = 300)

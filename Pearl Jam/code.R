@@ -9,6 +9,10 @@ library(jpeg)
 library(grid)
 library(gridExtra)
 
+#grab a custom function for captioning plots
+source("functions/functions.R")
+
+
 #First, you'll need a Spotify developer account.  Sign up here
 #https://developer.spotify.com/my-applications/#!/applications
 #Then, input your client id and secret below
@@ -126,29 +130,6 @@ p <- p +
            y = min(plot_range$y) + 0.05 * abs(diff(plot_range$y)),
            label = "Distance between songs is a rough measure of their similarity.\nX and Y position determined using the first two principal components from an analysis on song\ndanceability, energy, loudness, speechiness, acousticness, instrumentalness, liveness & valence.\nLabels are colored by album, using the average color of the album art.",
            color = "grey40", size = 4, fontface = "bold", family = "sans") 
-
-#function to create custom captions
-caption_plot <- function(plot, left_caption = "", right_caption = ""){
-    grobTree(
-      rectGrob(gp=gpar(fill="grey94", lwd = NA)),
-      arrangeGrob(plot,
-                   rectGrob(height = 0, gp=gpar(fill="grey94", lwd = 3, col = "grey80")),
-                   textGrob(left_caption, just = "left", x = 0.05, y = .5, gp = gpar(fontface = "bold",
-                                                                                  fontsize = 12,
-                                                                                  col = "grey40",
-                                                                                  fontfamily = "sans")),
-                   textGrob(right_caption, just = "right", x = 0.95, y = .5, gp = gpar(fontface = "bold",
-                                                                                    fontsize = 12,
-                                                                                    col = "grey40",
-                                                                                    fontfamily = "sans")),
-                   layout_matrix = rbind(c(1, 1),
-                                         c(2, 2),
-                                         c(3, 4)),
-                   heights = c(.95, .01, .04)
-      )
-    )
-  
-}
 
 
 
