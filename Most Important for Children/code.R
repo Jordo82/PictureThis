@@ -2,6 +2,8 @@ library(tidyverse)
 library(foreign)
 library(ggthemes)
 library(scales)
+library(grid)
+library(gridExtra)
 
 #download the GSS dataset into a temporary directory
 td <- tempdir()
@@ -23,8 +25,8 @@ most_important <- GSS %>%
   summarise(n = n(),
             p = sum(importance == "MOST IMPORTANT") / n)
 
-#from the suammry data, generate a plot showing the trend over time
-most_important %>% 
+#from the summary data, generate a plot showing the trend over time
+p <- most_important %>% 
   ggplot(aes(YEAR, p, color = quality)) + 
   geom_line(size = 1.5) + 
   #add custom labels to identify each quality
@@ -38,20 +40,35 @@ most_important %>%
   scale_x_continuous(breaks = seq(1986, 2018, by = 4)) +
   theme(axis.text = element_text(face = "bold", size = 12),
         legend.position = "none",
-        plot.margin = unit(c(1, 1, 2, 1), "cm"),
         panel.grid.major.x = element_blank()) + 
   labs(title = "What's most important for a child to learn?",
-       subtitle = "%of respondents selecting each attribute as 'the most important for a child to learn\nto prepare him or her for life'") + 
-  #manually assign the limits so that we can add another annotation at the bottom
-  coord_cartesian(ylim = c(0, .55), xlim = c(1986, 2018), clip = "off") + 
-  annotate("segment", x = 1983, xend = 2020, y = -.1, yend = -.1, color = "gray50", size = 1)+
-  #cite the source
-  annotate("text", x = 2020, y = -.15, 
-           label = "Source : 2018 General Social Survey",
-           hjust = 1, color = "grey50", fontface = "bold", size = 3) + 
-  annotate("text", x = 1983, y = -.15, 
-           label = "github.com/Jordo82/PictureThis",
-           hjust = 0, color = "grey50", fontface = "bold", size = 3)
+       subtitle = "%of respondents selecting each attribute as 'the most important for a child to learn\nto prepare him or her for life'")
+
+
+#function to create custom captions
+caption_plot <- function(plot, left_caption = "", right_caption = ""){
+  grobTree(
+    rectGrob(gp=gpar(fill="grey94", lwd = NA)),
+    arrangeGrob(plot,
+                rectGrob(height = 0, gp=gpar(fill="grey94", lwd = 3, col = "grey80")),
+                textGrob(left_caption, just = "left", x = 0.05, y = .5, gp = gpar(fontface = "bold",
+                                                                                  fontsize = 12,
+                                                                                  col = "grey40",
+                                                                                  fontfamily = "sans")),
+                textGrob(right_caption, just = "right", x = 0.95, y = .5, gp = gpar(fontface = "bold",
+                                                                                    fontsize = 12,
+                                                                                    col = "grey40",
+                                                                                    fontfamily = "sans")),
+                layout_matrix = rbind(c(1, 1),
+                                      c(2, 2),
+                                      c(3, 4)),
+                heights = c(.95, .01, .04)
+    )
+  )
+  
+}
 
 #output plot as png
-ggsave("Most Important for Children/Most_Important.png", width = 8, height = 4.5, dpi = 600)
+ggsave("Most Important for Children/Most_Important.png", 
+       caption_plot(p, "github.com/jordanRupton/PictureThis", "Source: 2018 General Social Survey"),
+       width = 8, height = 4.5, dpi = 300)
