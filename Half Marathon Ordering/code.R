@@ -1,6 +1,8 @@
 library(tidyverse)
 library(ggthemes)
 library(scales)
+library(grid)
+library(gridExtra)
 
 
 #read in the race results, taken from http://www.mychiptime.com/searchevent.php?id=11569
@@ -11,7 +13,7 @@ race <- read_csv("Half Marathon Ordering/Race Results.csv", col_types = "dddccdc
 
 
 #plot start order vs finish order
-race %>% 
+p <- race %>% 
   ggplot(aes(Finish_Order, Start_Order)) + 
   geom_point(alpha = 0.2, color = "red") + 
   
@@ -40,23 +42,38 @@ race %>%
   theme_fivethirtyeight() + 
   theme(axis.title = element_text(face = "bold", size = 12),
         axis.text = element_blank(),
-        legend.position = "right",
-        plot.margin = unit(c(0.5, 0.5, 1, 0.5), "cm")) + 
+        legend.position = "right") + 
   labs(title = "Where to start?",
        subtitle = "In what order did runners start and finish the race?",
        x = "Order at the Finish",
-       y = "Order at the Start") + 
-  #manually assign the limits so that we can add another annotation at the bottom
-  coord_cartesian(xlim = c(0,6016), ylim = c(0,6016), clip = "off") + 
-  annotate("segment", x = -500, xend = 6200, y = -1100, yend = -1100, color = "gray50", size = 1)+
-  #cite the source
-  annotate("text", x = 6200, y = -1400, 
-           label = "Source : Austin 3M Half Marathon 2019 Results",
-           hjust = 1, color = "grey50", fontface = "bold", size = 3) + 
-  annotate("text", x = -500, y = -1400, 
-           label = "github.com/Jordo82/PictureThis",
-           hjust = 0, color = "grey50", fontface = "bold", size = 3)
+       y = "Order at the Start") 
 
+
+#function to create custom captions
+caption_plot <- function(plot, left_caption = "", right_caption = ""){
+  grobTree(
+    rectGrob(gp=gpar(fill="grey94", lwd = NA)),
+    arrangeGrob(plot,
+                rectGrob(height = 0, gp=gpar(fill="grey94", lwd = 3, col = "grey80")),
+                textGrob(left_caption, just = "left", x = 0.05, y = .5, gp = gpar(fontface = "bold",
+                                                                                  fontsize = 8,
+                                                                                  col = "grey40",
+                                                                                  fontfamily = "sans")),
+                textGrob(right_caption, just = "right", x = 0.95, y = .5, gp = gpar(fontface = "bold",
+                                                                                    fontsize = 8,
+                                                                                    col = "grey40",
+                                                                                    fontfamily = "sans")),
+                layout_matrix = rbind(c(1, 1),
+                                      c(2, 2),
+                                      c(3, 4)),
+                heights = c(.95, .01, .04)
+    )
+  )
+  
+}
 
 #output plot as png
-ggsave("Half Marathon Ordering/Race_Ordering.png", width = 8, height = 4.5, dpi = 600)
+ggsave("Half Marathon Ordering/Race_Ordering.png", 
+       caption_plot(p, "github.com/jordanRupton/PictureThis", 
+                    "Source: Austin 3M Half Marathon 2019 Results"),
+       width = 8, height = 4.5, dpi = 300)
