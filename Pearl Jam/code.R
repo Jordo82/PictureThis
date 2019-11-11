@@ -6,6 +6,8 @@ library(broom)
 library(ggrepel)
 library(spotifyr)
 library(jpeg)
+library(grid)
+library(gridExtra)
 
 #First, you'll need a Spotify developer account.  Sign up here
 #https://developer.spotify.com/my-applications/#!/applications
@@ -111,39 +113,46 @@ p <- tracks %>%
         plot.margin = unit(c(0.5, 0.5, 0.5, 0.5), "cm"),
         panel.grid = element_blank()) + 
   labs(title = "\"I've figured out numbers and what they're for\"",
-       subtitle = "Song similarity of Pearl Jam's studio catalog, based on a principal component analysis of metrics from Spotify")
+       subtitle = "The songs of Pearl Jam")
 
 #grab the range of the plot so we can automatically annotate based on them
 plot_range <- tibble(x = ggplot_build(p)$layout$panel_scales_x[[1]]$range$range,
                      y = ggplot_build(p)$layout$panel_scales_y[[1]]$range$range)
 
-p +
+p <- p +
   #add some explainer text
   annotate("text", 
            x = min(plot_range$x) + 0.3 * abs(diff(plot_range$x)), 
            y = min(plot_range$y) + 0.05 * abs(diff(plot_range$y)),
            label = "Distance between songs is a rough measure of their similarity.\nX and Y position determined using the first two principal components from an analysis on song\ndanceability, energy, loudness, speechiness, acousticness, instrumentalness, liveness & valence.\nLabels are colored by album, using the average color of the album art.",
-           color = "grey50", size = 4, fontface = "bold") +
-  #manually assign the limits so that we can add another annotation at the bottom
-  coord_cartesian(clip = "off") + 
-  annotate("segment", 
-           x = min(plot_range$x) - 0.1 * abs(diff(plot_range$x)), 
-           xend = max(plot_range$x) + 0.1 * abs(diff(plot_range$x)), 
-           y = min(plot_range$y) - 0.05 * abs(diff(plot_range$y)), 
-           yend = min(plot_range$y) - 0.05 * abs(diff(plot_range$y)), 
-           color = "gray50", size = 1)+
-  #cite the source
-  annotate("text", 
-           x = max(plot_range$x) + 0.1 * abs(diff(plot_range$x)), 
-           y = min(plot_range$y) - 0.08 * abs(diff(plot_range$y)), 
-           label = "Source: Spotify",
-           hjust = 1, color = "grey50", fontface = "bold", size = 3) + 
-  annotate("text", 
-           x = min(plot_range$x) - 0.1 * abs(diff(plot_range$x)), 
-           y = min(plot_range$y) - 0.08 * abs(diff(plot_range$y)), 
-           label = "github.com/Jordo82/PictureThis",
-           hjust = 0, color = "grey50", fontface = "bold", size = 3)
+           color = "grey40", size = 4, fontface = "bold", family = "sans") 
+
+#function to create custom captions
+caption_plot <- function(plot, left_caption = "", right_caption = ""){
+    grobTree(
+      rectGrob(gp=gpar(fill="grey94", lwd = NA)),
+      arrangeGrob(plot,
+                   rectGrob(height = 0, gp=gpar(fill="grey94", lwd = 3, col = "grey80")),
+                   textGrob(left_caption, just = "left", x = 0.05, y = .5, gp = gpar(fontface = "bold",
+                                                                                  fontsize = 12,
+                                                                                  col = "grey40",
+                                                                                  fontfamily = "sans")),
+                   textGrob(right_caption, just = "right", x = 0.95, y = .5, gp = gpar(fontface = "bold",
+                                                                                    fontsize = 12,
+                                                                                    col = "grey40",
+                                                                                    fontfamily = "sans")),
+                   layout_matrix = rbind(c(1, 1),
+                                         c(2, 2),
+                                         c(3, 4)),
+                   heights = c(.95, .01, .04)
+      )
+    )
+  
+}
+
 
 
 #output plot as png
-ggsave("Pearl Jam/Pearl_Jam.png", width = 8, height = 4.5, dpi = 300, scale = 2)
+ggsave("Pearl Jam/Pearl_Jam.png", 
+       caption_plot(p, "github.com/jordanRupton/PictureThis", "Source: Spotify"), 
+       width = 8, height = 4.5, dpi = 300, scale = 2)
